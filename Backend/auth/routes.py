@@ -1,17 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from . import schemas, service, utils
-from .dependencies import get_db
+from .dependencies import get_db, get_current_user
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/login", response_model=schemas.Token)
-def login_for_access_token(
+async def login_for_access_token(
     response: Response,
     login_data: schemas.LoginRequest,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
-    user = service.authenticate_user(db, login_data.email, login_data.password)
+    """Authenticate user and return tokens with HTTP-only cookie for refresh token"""
+    user = await service.authenticate_user(db, login_data.email, login_data.password)
     
     if not user:
         raise HTTPException(
@@ -33,7 +35,7 @@ def login_for_access_token(
         key="refresh_token",
         value=refresh_token,
         httponly=True,      
-        secure=False,       
+        secure=False,       # Set to True in production with HTTPS
         samesite="lax",     
         max_age=7 * 24 * 60 * 60,  
         path="/auth/refresh"  
@@ -46,12 +48,13 @@ def login_for_access_token(
     )
 
 @router.post("/register", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
-def register_user(
+async def register_user(
     user_data: schemas.UserCreate,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
+    """Register a new user asynchronously"""
     # Check if user already exists
-    existing_user = service.get_user_by_email(db, user_data.email)
+    existing_user = await service.get_user_by_email(db, user_data.email)
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -59,17 +62,17 @@ def register_user(
         )
     
     # Create new user
-    new_user = service.create_user(db, user_data)
+    new_user = await service.create_user(db, user_data)
     
     return new_user
 
 @router.post("/refresh")
-def refresh_access_token(
+async def refresh_access_token(
     request: Request,
     response: Response,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
-    """Get new access token using refresh token from cookie"""
+    """Get new access token using refresh token from cookie asynchronously"""
     # Get refresh token from cookie
     refresh_token = request.cookies.get("refresh_token")
     
@@ -97,7 +100,7 @@ def refresh_access_token(
             detail="Invalid token payload"
         )
     
-    user = service.get_user_by_email(db, user_email)
+    user = await service.get_user_by_email(db, user_email)
     if not user or not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -112,7 +115,7 @@ def refresh_access_token(
     return {"access_token": new_access_token, "token_type": "bearer"}
 
 @router.post("/logout")
-def logout(response: Response):
+async def logout(response: Response):
     """Clear refresh token cookie"""
     response.delete_cookie(
         key="refresh_token",
@@ -120,14 +123,13 @@ def logout(response: Response):
     )
     return {"message": "Successfully logged out"}
 
-# Your existing login route if you want to keep it without cookies
 @router.post("/login-json", response_model=schemas.Token)
-def login_json(
+async def login_json(
     login_data: schemas.LoginRequest,
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
-    """Alternative login that returns both tokens in JSON (no cookies)"""
-    user = service.authenticate_user(db, login_data.email, login_data.password)
+    """Alternative login that returns both tokens in JSON (no cookies) asynchronously"""
+    user = await service.authenticate_user(db, login_data.email, login_data.password)
     
     if not user:
         raise HTTPException(
