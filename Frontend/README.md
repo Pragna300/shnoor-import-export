@@ -1,16 +1,59 @@
-# React + Vite
+# Shnoor Logistics Frontend 🚛💻
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the frontend application for the Shnoor AI Import-Export System, built using **React 19** and **Vite**.
 
-Currently, two official plugins are available:
+## ✨ Features
+- **📊 Real-time Dashboard**: Interactive charts and data summaries using Recharts.
+- **📄 Document Processing**: Upload and track invoice status.
+- **📍 Live Shipment Tracking**: Real-time status updates via WebSockets.
+- **🛡️ Secure Auth**: JWT-based authentication with protected routes.
+- **📱 Responsive UI**: Optimized for all screen sizes using Tailwind CSS.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠️ Tech Stack
+- **React 19**: Core framework.
+- **Vite**: Modern frontend build tool.
+- **Tailwind CSS**: Utility-first CSS framework.
+- **Lucide React**: For beautiful iconography.
+- **React Router**: For client-side routing.
+- **Recharts**: For data visualization.
 
-## React Compiler
+## 🚀 Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Prerequisites
+- Node.js (Latest LTS recommended)
+- npm or yarn
 
-## Expanding the ESLint configuration
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/khaleel-shnoor/AI-Import-Export-System.git
+   ```
+2. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Development
+Start the development server:
+```bash
+npm run dev
+```
+
+### Build
+Generate a production-ready bundle:
+```bash
+npm run build
+```
+
+The output will be in the `dist` folder, which can be served by any static host.
+
+## 📂 Project Structure
+- `src/components`: Reusable UI elements (Buttons, Tables, Modals).
+- `src/pages`: Main view layouts (Dashboard, Shipments, Login).
+- `src/assets`: Static assets like images and icons.
+- `src/hooks`: Custom React hooks for data fetching and state.
+- `src/context`: Application-wide state management.
